@@ -6,21 +6,17 @@
     element-loading-text="加载中..."
     element-loading-spinner="el-icon-loading"
     element-loading-background="rgba(0, 0, 0, 0.8)"
-    :class="{
-      is_preview: isPreview,
-      is_smoke_alarm: smokeAlarmActive,
-      [`lay_out${layout}`]: layout,
-    }"
+    :class="{ is_preview: isPreview, is_smoke_alarm: smokeAlarmActive }"
     v-bind="$attrs"
-  >
-    <!-- :style="{
+    :style="{
       top: top + 'px',
       left: left + 'px',
       width: width + 'px',
       height: height + 'px'
-    }" -->
+    }"
+  >
     <!-- <el-input v-model="url" /> -->
-    <div @click="onClick($event)" style="height: 100%">
+    <div @click="onClick($event)">
       <video
         :id="'video' + id"
         class="dub-video-target"
@@ -29,15 +25,16 @@
         autoplay
         playsinline
         preload="none"
-        style="width: 100%; height: 100%; object-fit: fill"
+        style="width:100%; height:100%; object-fit: fill"
         @canplay="onPlayerCanplay($event)"
       />
       <!-- @canplay="startPlay($event)" -->
 
       <!-- <webRtc /> -->
-      <canvas :id="'showCanvas' + id" class="show-canvas"
-        >您的浏览器不支持canvas,请升级</canvas
-      >
+      <canvas
+        :id="'showCanvas' + id"
+        class="show-canvas"
+      >您的浏览器不支持canvas,请升级</canvas>
     </div>
     <dub-video-touch v-if="activeCursorPtz" @ptz="onPtz" />
     <div v-if="isPreview" class="dub-video-screen-close" @click="stopPreview">
@@ -170,16 +167,16 @@
       >
         <i class="el-icon-zoom-out" />
       </span> -->
-    <!-- </div> -->
+  <!-- </div> -->
   </div>
 </template>
 
 <script>
-import screenfull from "screenfull";
-import axios from "axios";
+import screenfull from 'screenfull'
+import axios from 'axios'
 // import webRtc from '../webRtc.vue'
 // import { start, stop } from '@/utils/rtcUtils'
-import DubVideoTouch from "@/views/box/sys-screen/components/dubVideoTouch.vue";
+import DubVideoTouch from '@/views/box/sys-screen/components/dubVideoTouch.vue'
 // key:分屏id   value:摄像头id
 const map = new Map()
   .set(1, 1)
@@ -197,30 +194,30 @@ const map = new Map()
   .set(13, 13)
   .set(14, 14)
   .set(15, 15)
-  .set(16, 16);
+  .set(16, 16)
 export default {
-  name: "DubVideoScreen",
+  name: 'DubVideoScreen',
   components: {
-    DubVideoTouch,
+    DubVideoTouch
     // webRtc
   },
   props: {
     baseUrl: {
       type: String,
-      default: "",
+      default: ''
     },
     gutter: {
       type: Number,
-      default: 0,
+      default: 0
     },
     id: {
       type: [String, Number],
-      default: "",
+      default: ''
     },
     layout: {
       type: [String, Number],
-      default: 2,
-    },
+      default: 2
+    }
     // dataJson: {
     //   type: String,
     //   // required: true,
@@ -234,7 +231,8 @@ export default {
   },
   data() {
     return {
-      src: "",
+      src:
+        '',
       show: true,
       // url: sessionStorage.getItem('baseUrl'),
 
@@ -266,8 +264,8 @@ export default {
 
       nowPlayData: undefined,
 
-      canDrawBol: true,
-    };
+      canDrawBol: true
+    }
   },
   // +
   watch: {
@@ -275,11 +273,11 @@ export default {
       handler(val, oldval) {
         // console.log('val数据变化', val)
         // console.log('oldval数据变化', oldval)
-        this.startPlay();
+        this.startPlay()
       },
       deep: true,
-      immediate: true,
-    },
+      immediate: true
+    }
     // 观察数据变化进行绘制
     // dataJson: {
     //   handler(val, oldval) {
@@ -300,113 +298,115 @@ export default {
     //   deep: true,
     //   immediate: true
     // }
+
   },
   created() {
-    this.startPreview();
-    this.startPlay();
+    this.startPreview()
+    this.startPlay()
     this.$nextTick(() => {
-      this.initCanvas();
-      const video = document.getElementById("video" + this.id);
+      this.initCanvas()
+      const video = document.getElementById('video' + this.id)
       // const video = this.$refs.myVideo
-      video.addEventListener("canplay", () => {
-        this.videoLoading = false;
-      });
-    });
+      video.addEventListener('canplay', () => {
+        this.videoLoading = false
+      })
+    })
   },
   beforeDestroy(to, from, next) {
     // console.log('销毁组件前...stop:', this.windowId)
-    this.windowId && stop(this.id, this.windowId);
+    this.windowId && stop(this.id, this.windowId)
   },
 
   methods: {
     startPlay() {
       // console.info('startPlay！')
-      this.clearStream();
-      var that = this;
-      that.isLoading = true;
+      this.clearStream()
+      var that = this
+      that.isLoading = true
       that.webRTC = new RTCPeerConnection({
         iceServers: [
           {
-            urls: ["stun:stun.l.google.com:19302"],
-          },
-        ],
+            urls: ['stun:stun.l.google.com:19302']
+          }
+        ]
         // sdpSemantics: 'unified-plan',
-      });
+      })
 
-      that.webRTC.onnegotiationneeded = this.handleNegotiationNeeded;
-      that.webRTC.ontrack = (event) => {
-        that.isLoading = false;
+      that.webRTC.onnegotiationneeded = this.handleNegotiationNeeded
+      that.webRTC.ontrack = event => {
+        that.isLoading = false
         // console.log(event.streams.length + ' track is delivered')
-        const videoPlay = document.getElementById("video" + this.id);
+        const videoPlay = document.getElementById('video' + this.id)
         // videoPlay.srcObject = event.streams[0]
-        videoPlay.srcObject = event.streams[0];
-        videoPlay.play();
-      };
+        videoPlay.srcObject = event.streams[0]
+        videoPlay.play()
+      }
       //
-      that.webRTC.addTransceiver("video", {
-        direction: "sendrecv",
-      });
-      that.webRTCSendChannel = this.webRTC.createDataChannel("foo");
+      that.webRTC.addTransceiver('video', {
+        direction: 'sendrecv'
+      })
+      that.webRTCSendChannel = this.webRTC.createDataChannel('foo')
 
       that.webRTCSendChannel.onclose = () => {
         // startPlay();
         // console.info('sendChannel has closed')
-      };
+      }
       that.webRTCSendChannel.onopen = () => {
         // console.log('sendChannel has opened')
-        that.webRTCSendChannel.send("ping");
+        that.webRTCSendChannel.send('ping')
         that.webRTCSendChannelInterval = setInterval(() => {
-          that.webRTCSendChannel.send("ping");
-        }, 1000);
-      };
+          that.webRTCSendChannel.send('ping')
+        }, 1000)
+      }
 
-      that.webRTCSendChannel.onmessage = (e) => console.info(e.data);
+      that.webRTCSendChannel.onmessage = e => console.info(e.data)
     },
     async handleNegotiationNeeded() {
       // const channel = 0
-      const offer = await this.webRTC.createOffer();
-      await this.webRTC.setLocalDescription(offer);
+      const offer = await this.webRTC.createOffer()
+      await this.webRTC.setLocalDescription(offer)
+
       const instance = axios.create({
         timeout: 8000,
         headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
-      const param = "data=" + btoa(this.webRTC.localDescription.sdp);
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
+      const param = 'data=' + btoa(this.webRTC.localDescription.sdp)
       // console.log(param, 'RTCparam')
 
       // const url = `http://10.20.10.134:18083/stream/37aec28e-6181-4753-9acd-0456a75f0289/channel/0//webrtc?uuid=37aec28e-6181-4753-9acd-0456a75f0289&channel=${channel}`
       // const url = sessionStorage.getItem('baseUrl')
-      const url = this.baseUrl;
+      const url = this.baseUrl
       instance
         .post(url, param)
-        .then((res) => {
+        .then(res => {
           try {
             // console.log('res', res)
             this.webRTC.setRemoteDescription(
               new RTCSessionDescription({
-                type: "answer",
-                sdp: atob(res.data),
+                type: 'answer',
+                sdp: atob(res.data)
               })
-            );
+            )
           } catch (e) {
-            console.warn(e);
+            console.warn(e)
           }
         })
-        .catch((err) => {
+        .catch(err => {
           // this.isLoading.value = false
           // cameraId.value = ''
           // showTag.value = '视频流异常，请联系管理员'
-          console.info("webrtcErr", err);
-        });
+          console.info('webrtcErr', err)
+        })
     },
 
     clearStream() {
-      this.webRTC = {};
-      this.webRTCSendChannel = {};
+      this.webRTC = {}
+      this.webRTCSendChannel = {}
       if (this.webRTCSendChannelInterval) {
-        clearInterval(this.webRTCSendChannelInterval);
-        console.info("视频流已断开！");
+        clearInterval(this.webRTCSendChannelInterval)
+        console.info('视频流已断开！')
       }
     },
     // //////////////////////////
@@ -420,6 +420,7 @@ export default {
       //   console.log(111)
       //   this.startPlay()
       //   console.log(222)
+
       //   // this.$nextTick(() => {
       //   //   this.startPlay()
       //   // })
@@ -432,98 +433,98 @@ export default {
     },
     // 设置窗口样式
     setRect(rect) {
-      this.left = rect[0];
-      this.top = rect[1];
-      this.width = rect[2];
-      this.height = rect[3];
+      this.left = rect[0]
+      this.top = rect[1]
+      this.width = rect[2]
+      this.height = rect[3]
     },
     resize(size) {
-      var gutter = this.gutter * 2;
-      this.width = size[0] - gutter;
-      this.height = size[1] - gutter;
+      var gutter = this.gutter * 2
+      this.width = size[0] - gutter
+      this.height = size[1] - gutter
     },
     // 点击选中
     onClick(evt) {
       // console.log(this.id, evt, 'aaaa')
-      this.$emit("click", this.id);
+      this.$emit('click', this.id)
     },
     // 点击全屏
     fullScreen() {
       // console.log(screenfull.isFullscreen)
       // 如果全屏隐藏
-      const el = document.getElementById("dubVideoScreen" + this.id);
+      const el = document.getElementById('dubVideoScreen' + this.id)
       if (!screenfull.enabled) {
         this.$message({
-          message: "you browser can not work",
-          type: "warning",
-        });
-        return false;
+          message: 'you browser can not work',
+          type: 'warning'
+        })
+        return false
       }
-      screenfull.toggle(el);
+      screenfull.toggle(el)
     },
     // 点击云台面板
     onClickPanelPtz(evt) {
-      evt.stopPropagation();
-      this.activePanelPtz = !this.activePanelPtz;
-      this.activeCursorPtz = false;
+      evt.stopPropagation()
+      this.activePanelPtz = !this.activePanelPtz
+      this.activeCursorPtz = false
     },
     // 点击云台鼠标
     onClickCursorPtz(evt) {
-      evt.stopPropagation();
-      this.activeCursorPtz = !this.activeCursorPtz;
-      this.activePanelPtz = false;
+      evt.stopPropagation()
+      this.activeCursorPtz = !this.activeCursorPtz
+      this.activePanelPtz = false
     },
     // 开启关闭烟火 报警
     onClickSmokeAlarm(evt) {
-      evt.stopPropagation();
-      this.activeSmokeAlarm = !this.activeSmokeAlarm;
+      evt.stopPropagation()
+      this.activeSmokeAlarm = !this.activeSmokeAlarm
       // if (!this.activeSmokeAlarm) {
       //   this.smokeAlarmActive = false;
       // }
 
-      this.$emit("smoke-alarm", this.id, {
+      this.$emit('smoke-alarm', this.id, {
         src: this.src,
         // flag: this.smokeAlarmActive
-        flag: this.activeSmokeAlarm,
-      });
+        flag: this.activeSmokeAlarm
+      })
     },
     // 云台面板事件
     onPtz(evt, command, flag) {
       // debugger;
-      evt.stopPropagation();
-      evt.preventDefault();
+      evt.stopPropagation()
+      evt.preventDefault()
       //
-      this.$emit("ptz", this.id, {
+      this.$emit('ptz', this.id, {
         command: command,
-        flag: flag,
-      });
+        flag: flag
+      })
     },
 
     startPreview(data) {
       // console.log('444', data, '重新播放')
-      this.$emit("start-preview", this.id);
+      this.$emit('start-preview', this.id)
       // console.log(map, 'map', this.id)
       // 分屏id,摄像头id
-      map.set(this.id, data.cid);
+      map.set(this.id, data.cid)
 
-      this.videoLoading = true;
+      this.videoLoading = true
       //   播放！！！！！
       // var video = document.getElementById('video' + this.id)
       // console.log('预览前先关闭上一个视频流')
-      this.windowId && stop(this.id, this.windowId);
+      this.windowId && stop(this.id, this.windowId)
       // console.log(this.windowId, 'windowId')
-      this.windowId = undefined;
+      this.windowId = undefined
       if (this.nowPlayData) {
-        this.$emit("playCidsDiff", this.nowPlayData.cid);
+        this.$emit('playCidsDiff', this.nowPlayData.cid)
       }
 
-      if (data) this.nowPlayData = data;
+      if (data) this.nowPlayData = data
       // console.log('33333333333333333', this.nowPlayData)
-      this.src = this.nowPlayData.src;
-      this.isPreview = this.nowPlayData.src;
+      this.src = this.nowPlayData.src
+      this.isPreview = this.nowPlayData.src
       // +
-      this.ctx.clearRect(0, 0, this.ctxW, this.ctxH);
-      this.initCanvas();
+      this.ctx.clearRect(0, 0, this.ctxW, this.ctxH)
+      this.initCanvas()
 
       // eslint-disable-next-line no-undef
       // start(
@@ -538,28 +539,28 @@ export default {
       // )
     },
     stopPreview() {
-      console.log("stopPreview");
-      this.src = "";
-      this.isPreview = false;
-      this.activePanelPtz = false;
-      this.activeCursorPtz = false;
-      this.$emit("stop-preview", this.id);
+      console.log('stopPreview')
+      this.src = ''
+      this.isPreview = false
+      this.activePanelPtz = false
+      this.activeCursorPtz = false
+      this.$emit('stop-preview', this.id)
       // 关闭播放流
-      this.windowId && stop(this.id, this.windowId);
-      this.windowId = undefined;
+      this.windowId && stop(this.id, this.windowId)
+      this.windowId = undefined
       // 关闭后回调 传cid ，去除playCids里的cid
-      this.$emit("playCidsDiff", this.nowPlayData.cid);
+      this.$emit('playCidsDiff', this.nowPlayData.cid)
     },
 
     // 根据 windowId 调用 stop 方法
     stopWindowId() {
-      this.windowId && stop(this.id, this.windowId);
-      this.windowId = undefined;
+      this.windowId && stop(this.id, this.windowId)
+      this.windowId = undefined
     },
 
     // 是否预览
     hasPreview() {
-      return this.isPreview;
+      return this.isPreview
     },
 
     // startSmokeAlarm() {
@@ -584,76 +585,76 @@ export default {
 
     // 初始化canvas
     initCanvas(flag) {
-      console.log("initCanvas  分屏id", this.id, flag, "flag");
-      var that = this;
-      const video = document.getElementById("video" + this.id);
-      this.canvas = document.getElementById("showCanvas" + this.id);
-      this.ctx = this.canvas.getContext("2d");
+      console.log('initCanvas  分屏id', this.id, flag, 'flag')
+      var that = this
+      const video = document.getElementById('video' + this.id)
+      this.canvas = document.getElementById('showCanvas' + this.id)
+      this.ctx = this.canvas.getContext('2d')
       // console.log(video, 'videovideovideovideo')
       // console.log(canvas)
 
-      const myVideo_rect = video.getBoundingClientRect();
+      const myVideo_rect = video.getBoundingClientRect()
 
-      this.canvas.width = myVideo_rect.width;
-      this.canvas.height = myVideo_rect.height;
-      this.ctxW = myVideo_rect.width;
-      this.ctxH = myVideo_rect.height;
+      this.canvas.width = myVideo_rect.width
+      this.canvas.height = myVideo_rect.height
+      this.ctxW = myVideo_rect.width
+      this.ctxH = myVideo_rect.height
 
       const videoPlayFn = () => {
-        console.log("开始播放");
-        this.startSmokeAlarm();
-        this.videoLoading = false;
-      };
-      video.removeEventListener("play", videoPlayFn);
+        console.log('开始播放')
+        this.startSmokeAlarm()
+        this.videoLoading = false
+      }
+      video.removeEventListener('play', videoPlayFn)
 
-      video.addEventListener("play", videoPlayFn);
-      videoPlayFn();
+      video.addEventListener('play', videoPlayFn)
+      videoPlayFn()
 
       function fn(flag) {
         // console.log('flag11111111111111', flag)
         // TODO flag 要设置标识
-        that.vW = video.videoWidth;
-        that.vH = video.videoHeight;
+        that.vW = video.videoWidth
+        that.vH = video.videoHeight
 
         // console.log(that.vW, that.vH);
         // 实际视频比例
-        const sPro = that.vH / that.vW;
+        const sPro = that.vH / that.vW
         // video 标签比例
-        const vPro = myVideo_rect.height / myVideo_rect.width;
+        const vPro = myVideo_rect.height / myVideo_rect.width
         // console.log(myVideo_rect.height,myVideo_rect.width,sPro,vPro)
 
         if (vPro > sPro) {
           // 宽度适应计算高度偏移量
-          const videoSHowHeight = sPro * myVideo_rect.width; // 视频实际高度
-          that.videoTop = (myVideo_rect.height - videoSHowHeight) / 2; // 求出偏移量
-          that.videoLeft = 0; // 重置
+          const videoSHowHeight = sPro * myVideo_rect.width // 视频实际高度
+          that.videoTop = (myVideo_rect.height - videoSHowHeight) / 2 // 求出偏移量
+          that.videoLeft = 0 // 重置
           // 视频展示大小
-          that.videoShowH = videoSHowHeight;
-          that.videoShowW = myVideo_rect.width;
+          that.videoShowH = videoSHowHeight
+          that.videoShowW = myVideo_rect.width
         } else {
           // 高度适应计算宽度偏移量
-          const videoSHowWidth = myVideo_rect.height / sPro; // 视频实际宽度
-          that.videoLeft = (myVideo_rect.width - videoSHowWidth) / 2; // 求出偏移量
-          that.videoTop = 0; // 重置
+          const videoSHowWidth = myVideo_rect.height / sPro // 视频实际宽度
+          that.videoLeft = (myVideo_rect.width - videoSHowWidth) / 2 // 求出偏移量
+          that.videoTop = 0 // 重置
           // 视频展示大小
-          that.videoShowW = videoSHowWidth;
-          that.videoShowH = myVideo_rect.height;
+          that.videoShowW = videoSHowWidth
+          that.videoShowH = myVideo_rect.height
         }
         //  可以进行绘制
-        that.canDrawBol = true;
+        that.canDrawBol = true
         // that.onStartAlarm();
       }
 
       // !flag && video.addEventListener('canplay', fn)
       flag &&
-        video.addEventListener("canplay", function (e) {
+        video.addEventListener('canplay', function(e) {
           // SomeJavaScriptCode
           // console.log(e, 'canplay')
-        });
+        })
 
-      !flag && fn();
+      !flag && fn()
       // flag && fn()
-    },
+    }
     // 绘制 this.dataJson
     // drawFun(data) {
     //   map.forEach((value, index) => {
@@ -732,8 +733,8 @@ export default {
     //     }
     //   })
     // }
-  },
-};
+  }
+}
 </script>
 
 <style scoped>
@@ -742,14 +743,8 @@ export default {
   background: #262626;
   border: 1px solid transparent;
   overflow: hidden;
-  width: 100%;
-  height: 100%;
 }
-.dub-video-screen.lay_out2 {
-  float: left;
-  width: 50%;
-  height: 50%;
-}
+
 .dub-video-screen.is_smoke_alarm {
   animation: heart 1s ease infinite;
   border-width: 2px;

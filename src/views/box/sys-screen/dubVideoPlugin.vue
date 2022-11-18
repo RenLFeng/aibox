@@ -17,7 +17,7 @@
                     @change="changeCamName"
                   />
                 </div>
-                <div style="margin: 0 5px;">
+                <div style="margin: 0 5px">
                   <el-button size="small">搜索</el-button>
                 </div>
               </div>
@@ -34,16 +34,8 @@
               </div>
             </el-col>
             <el-col :span="20" :xs="24">
-
               <div class="grid-content bg-purple-dark">
-                <div
-                  class="dub-video-plugin"
-                  v-bind="$attrs"
-                  :style="{
-                    width: width + 'px',
-                    height: height + 'px'
-                  }"
-                >
+                <div class="dub-video-plugin" v-bind="$attrs">
                   <dub-video-window
                     ref="refVideoWindow"
                     :base-url="baseUrl"
@@ -53,8 +45,6 @@
                     @start-preview="startPreview"
                     @select="select"
                   />
-
-                  <dubVideoWindow />
                 </div>
               </div>
             </el-col>
@@ -66,23 +56,23 @@
 </template>
 
 <script>
-import dubVideoWindow from '@/views/box/sys-screen/components/dubVideoWindow'
-import { treeselect, streamAdd, streamDelete } from '@/api/box/sys-camera'
+import dubVideoWindow from "@/views/box/sys-screen/components/dubVideoWindow";
+import { treeselect, streamAdd, streamDelete } from "@/api/box/sys-camera";
 
 export default {
-  name: 'DubVideoPlugin',
+  name: "DubVideoPlugin",
   components: {
-    dubVideoWindow
+    dubVideoWindow,
   },
   props: {
     width: {
       type: Number,
-      default: 1383
+      default: 1383,
     },
     height: {
       type: Number,
-      default: 600
-    }
+      default: 600,
+    },
   },
 
   data() {
@@ -92,16 +82,15 @@ export default {
       offset: [],
       // 部门树选项
       // camOptions: undefined,
-      camOptions: [
-      ],
+      camOptions: [],
       defaultProps: {
-        children: 'children',
-        label: 'label'
+        children: "children",
+        label: "label",
       },
       queryParams: {},
-      camName: '',
-      baseUrl: ''
-    }
+      camName: "",
+      baseUrl: "",
+    };
   },
   //   watch() {
   // handler(){
@@ -109,12 +98,12 @@ export default {
   // }
   //   },
   created() {
-    this.getTreeselect()
+    this.getTreeselect();
   },
   mounted() {
     // console.info('mounted')
-    this.resize([this.width, this.height])
-    this.stopWindowId()
+    this.resize([this.width, this.height]);
+    this.stopWindowId();
     // this.screenWidth = document.documentElement.clientWidth - this.$refs.leftWidth.clientWidth - this.$refs.leftWidth.offsetLeft - this.$refs.leftWidth.clientWidth
     // console.log(this.$refs.leftWidth.clientWidth, 'width')
     // console.log(this.screenWidth, 'screenWidthWidth')
@@ -131,40 +120,39 @@ export default {
     },
     // 开始预览
     changeCamName(value) {
-      this.$emit('changeCamName', value)
+      this.$emit("changeCamName", value);
     },
     /** 查询部门下拉树结构 */
     getTreeselect() {
-      treeselect().then(response => {
-        this.camOptions = response.data
-      })
+      treeselect().then((response) => {
+        this.camOptions = response.data;
+      });
     },
     // 筛选节点
     filterNode(value, data) {
-      if (!value) return true
-      return data.label.indexOf(value) !== -1
+      if (!value) return true;
+      return data.label.indexOf(value) !== -1;
     },
     // 节点单击事件
     handleNodeClick(data) {
+      console.log(data);
       // localStorage.removeItem('baseUrl')
-      this.queryParams.camId = '/' + data.id + '/'
-      localStorage.setItem('videoId', data.idShow)
+      this.queryParams.camId = "/" + data.id + "/";
+      localStorage.setItem("videoId", data.idShow);
       // this.getList()
       // 删除视频流
-      streamDelete(localStorage.getItem('videoId'))
+      streamDelete(localStorage.getItem("videoId"));
       // console.log(localStorage.getItem('videoId'))
       // console.log(data, this.queryParams, '打印摄像头列表')
       setTimeout(() => {
         // console.log(data.idShow, 'data.idShow')
-        streamAdd(data.idShow).then(response => {
+        streamAdd(data.idShow).then((response) => {
           // console.log(response, 'response')
           // localStorage.setItem('baseUrl', response.data)
-          this.baseUrl = response.data
+          this.baseUrl = response.data;
           // console.log(this, 'this')
-        }
-
-        )
-      }, 500)
+        });
+      }, 500);
       // console.log(this.$refs.refVideoWindow, 'refs')
       // var that = this
       // this.$nextTick(function() {
@@ -174,22 +162,22 @@ export default {
       // console.log(res)
     },
     stopWindowId() {
-      this.$refs.refVideoWindow.stopWindowId()
+      this.$refs.refVideoWindow.stopWindowId();
       // console.log(this.$refs.refVideoWindow, 'Video window')
     },
     resize(size) {
-      var that = this
-      this.$nextTick(function() {
-        that.$refs.refVideoWindow.resize(size)
-      })
+      var that = this;
+      this.$nextTick(function () {
+        that.$refs.refVideoWindow.resize(size);
+      });
     },
     // 开始预览
     startPreview(index, data) {
       // console.log('开始预览', index, data)
-      var that = this
-      this.$nextTick(function() {
-        that.$refs.refVideoWindow.startPreview(index, data)
-      })
+      var that = this;
+      this.$nextTick(function () {
+        that.$refs.refVideoWindow.startPreview(index, data);
+      });
     },
     // startSmokeAlarm(index) {
     //   var that = this
@@ -204,13 +192,13 @@ export default {
     //   })
     // },
     setColor(data) {
-      this.$emit('setColor', data)
-    }
-  }
-}
+      this.$emit("setColor", data);
+    },
+  },
+};
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .head-container-cam {
   display: flex;
 }

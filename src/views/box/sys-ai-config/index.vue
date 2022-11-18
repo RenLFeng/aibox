@@ -705,6 +705,7 @@
                 >
                   <!--              <el-checkbox  v-for="(item, index) in aiOptions" :key="index" class="el-checkbox-width" :label="item.aiId" :disabled="relateAiForm.sysAiIds.includes(item.aiId)">-->
                   <el-col
+                    class="checkbox-item"
                     v-for="(item, index) in aiOptions"
                     :key="index"
                     :span="6"
@@ -717,7 +718,9 @@
                         :icon-class="item.icon"
                         :class-name="item.icon"
                       />
-                      {{ item.aiName }}
+                      <span class="label-text">
+                        {{ item.aiName }}
+                      </span>
                     </el-checkbox>
                     <!--                  <el-checkbox-button :label="item.aiId" :disabled="sysAiIdsOldU.includes(item.aiId)">-->
                     <!--                    <div style="display:table-cell;height:100px;font-size:12px;font-height:14px;vertical-align:middle;text-align:center">-->
@@ -1662,5 +1665,77 @@ export default {
       background: linear-gradient(to bottom, #a388ff, #654ef4);
     }
   }
+}
+.checkbox-item {
+  height: 60px;
+  line-height: 60px;
+  border: 1px solid #f0f0f0;
+  width: calc(25% - 20px);
+  margin: 5px 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 7px -1px #ccc;
+
+  overflow: hidden;
+  label {
+    transition: all 0.15s;
+  }
+  &:hover {
+    label {
+      transform: scale(1.1);
+    }
+  }
+
+  .el-checkbox {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+
+    .el-checkbox__label {
+      width: 100%;
+    }
+  }
+}
+.ellipsis {
+  text-overflow: ellipsis;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+}
+</style>
+<style>
+.Correlation .el-checkbox-group::after {
+  content: "";
+  display: block;
+  visibility: hidden;
+  clear: both;
+  height: 0;
+}
+.Correlation .checkbox-item .el-checkbox__input {
+  position: absolute;
+  opacity: 0;
+}
+.Correlation .el-checkbox__label {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  padding-left: 0;
+}
+.Correlation svg {
+  font-size: 22px;
+}
+.Correlation .label-text {
+  display: inline-block;
+  width: 100%;
+  text-overflow: ellipsis;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: center;
 }
 </style>

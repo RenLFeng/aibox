@@ -173,23 +173,37 @@
             append-to-body
             :before-close="cancel"
           >
-            <el-row :gutter="24">
+            <!-- <div v-if="open"> -->
+            <el-row :gutter="24" v-viewer>
               <el-col :span="18">
-                <div v-if="form.videoFilePath === ''">
-                  <el-divider content-position="left">抓拍图片</el-divider>
-                  <el-image
-                    width="100%"
-                    :src="form.imgFilePath"
-                    :preview-src-list="form.imgFilePath"
-                  />
-                </div>
-                <div v-else>
+                <my-image :src="form.imgFilePath"/>
+                <div v-if="form.videoFilePath">
                   <el-divider content-position="left">告警视频</el-divider>
                   <video-player
                     :playsinline="true"
                     class="vjs-custom-skin"
                     :options="playerOptions"
                   />
+                </div>
+                <div v-else>
+                  <div v-if="form.imgFilePath">
+                    <el-divider content-position="left">抓拍图片</el-divider>
+                    <!-- <el-image
+                      width="100%"
+                      :src="form.imgFilePath"
+                      :preview-src-list="[form.imgFilePath]"
+                      @load="onLoadSuccess('big')"
+                      @error="onImgError('big', $event)"
+                    /> -->
+                    <img
+                      :src="form.imgFilePath"
+                      alt=""
+                      style="width: 100%; height: 530px; object-fit: contain"
+                      REL="NOREFERRER"
+                      @load="onLoadSuccess('big')"
+                      @error="onImgError('big', $event)"
+                    />
+                  </div>
                 </div>
               </el-col>
               <el-col :span="6">
@@ -200,18 +214,22 @@
                   label-position="right"
                 >
                   <el-divider content-position="left">抓拍图片</el-divider>
-
-                  <el-image
+                  <img
+                    :src="form.imgFilePath"
+                    alt=""
+                    style="width: 100%; height: 170px; object-fit: contain"
+                    REL="NOREFERRER"
+                    @load="onLoadSuccess('big')"
+                    @error="onImgError('big', $event)"
+                  />
+                  <!-- <el-image
                     :src="form.imgFilePath"
                     width="80%"
                     :preview-src-list="imgPreviewSrcList"
+                    @load="onLoadSuccess('small')"
+                    @error="onImgError('small', $event)"
                     class="img-sl"
-                  />
-                  <!--                <el-image-->
-                  <!--                  :src="form.imgFilePath"-->
-                  <!--                  style="width : 80%"-->
-                  <!--                  :preview-src-list="form.imgFilePath"-->
-                  <!--                />-->
+                  /> -->
                   <el-divider content-position="left">告警详情</el-divider>
                   <el-form-item>
                     <span slot="label" class="formLabel"
@@ -251,6 +269,7 @@
                 </el-form>
               </el-col>
             </el-row>
+            <!-- </div> -->
             <!-- 报警处理弹窗 -->
             <el-dialog
               width="30%"
@@ -482,6 +501,7 @@ import { getAllBoxName, getAllBoxNameDict } from "@/api/box/sys-box";
 import { getAllCameraName, getAllCameraNameDict } from "@/api/box/sys-camera";
 import { getAllAiName, getAllAiNameDict } from "@/api/box/sys-ai";
 import { unWsLogout } from "@/api/ws";
+import { themeStyle } from "../../../settings";
 
 export default {
   name: "SysAlarmData",
@@ -985,16 +1005,32 @@ export default {
       });
     },
     // 详情
-    lookDetail(row) {
+    lookDetail(row, dbug = true) {
+      this.curEditRow = row;
+      this.initImgLoad();
       this.reset();
       const alarmId = row.alarmId;
       getSysAlarmData(alarmId).then((response) => {
+        // if (dbug) {
+        //   response.data.imgFilePath += "56";
+        // } else {
+        //   console.log("从新加载");
+        // }
         this.imgPreviewSrcList.push(response.data.imgFilePath);
         this.form = response.data;
         this.open = true;
         this.title = "告警详情";
         this.isEdit = false;
         this.playerOptions["sources"][0]["src"] = this.form.videoFilePath;
+
+        // this.initDrawImage(response.data, "imgFilePath", () => {
+        //   this.imgPreviewSrcList.push(response.data.imgFilePath);
+        //   this.form = response.data;
+        //   this.open = true;
+        //   this.title = "告警详情";
+        //   this.isEdit = false;
+        //   this.playerOptions["sources"][0]["src"] = this.form.videoFilePath;
+        // });
       });
       // console.log(this.form)
       // 自动开始播放
@@ -1002,6 +1038,112 @@ export default {
       //   const infoVide = document.getElementById('infoVideo')
       //   if (!infoVide) infoVide.play()
       // })
+    },
+    initDrawImage(itemobj, propstype = "imgFilePath", callback = null) {
+      let imgpath = itemobj[propstype];
+      if (!imgpath || itemobj.hasDrawImageUrl) {
+        callback && callback();
+        return;
+      }
+      let imgFileData = itemobj.imgFileData;
+      if (!imgFileData) {
+        callback && callback();
+        return;
+      }
+      imgFileData = JSON.parse(imgFileData);
+      if (!imgFileData.boxInfo) {
+        callback && callback();
+        return;
+      }
+      var Canvas = document.createElement("canvas");
+      var context = Canvas.getContext("2d");
+      let img = new Image();
+      img.src = imgpath;
+      img.setAttribute("crossOrigin", "Anonymous");
+      img.onload = (e) => {
+        // let nwidth = img.naturalWidth;
+        // let nheight = img.naturalHeight;
+        let nwidth = imgFileData.imageWidth;
+        let nheight = imgFileData.imageHeight;
+        Canvas.width = nwidth;
+        Canvas.height = nheight;
+        // context.drawImage(img, 0, 0, nwidth, nheight);
+        context.drawImage(img, 0, 0, nwidth, nheight, 0, 0, nwidth, nheight);
+        context.strokeStyle = "red";
+        context.lineWidth = 10;
+        context.lineJoin = "round";
+        for (let arr of imgFileData.boxInfo) {
+          let temp = [];
+          let x, y, w, h;
+          for (let i = 0; i < arr.length; i++) {
+            let v = arr[i];
+            if (i == 1 || i == 3) {
+              v = v * nheight;
+            } else {
+              v = v * nwidth;
+            }
+            switch (i) {
+              case 0:
+                x = v;
+                break;
+              case 1:
+                y = v;
+                break;
+              case 2:
+                w = v - x;
+                break;
+              case 3:
+                h = v - y;
+                break;
+            }
+            temp.push(v);
+          }
+          context.strokeRect(x, y, w, h);
+        }
+        var imgDataSrc = Canvas.toDataURL("image/jpeg");
+        itemobj.hasDrawImageUrl = true;
+        itemobj[propstype] = imgDataSrc;
+        callback && callback();
+      };
+      img.onerror = () => {
+        callback && callback();
+      };
+    },
+    onImgError(type, e) {
+      if (!this[type]) {
+        console.log("图片初始化加载失败", type, e);
+        this[type] = 1;
+      }
+      this[type]++;
+      if (this[type] < 4) {
+        console.log("尝试重复加载失败", type, e);
+        e.path[0].src = e.path[0].src;
+      } else {
+        if (this[type] < 6) {
+          console.log(
+            "尝试重复加载失败2次后,加载默认图片,允许重复加载2次,防止死循环",
+            type,
+            e
+          );
+          e.path[0].src = require("@/assets/404_images/imgNotFound.png");
+        } else {
+          this[type] = 0;
+          // e.path[0].src = 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg';
+        }
+      }
+    },
+    onLoadSuccess(type) {
+      if (this[type]) {
+        this[type] = 0;
+      }
+    },
+    initImgLoad() {
+      if (this["small"]) {
+        this["small"] = 0;
+      }
+      if (this["big"]) {
+        this["big"] = 0;
+      }
     },
     initWebSocket() {
       // 初始化weosocke

@@ -16,7 +16,7 @@
         backgroundColor:
           $store.state.settings.themeStyle === 'dark'
             ? variables.menuBg
-            : variables.menuLightBg
+            : variables.menuLightBg,
       }"
     />
     <div :class="{ hasTagsView: needTagsView }" class="main-container">
@@ -43,48 +43,49 @@
       @close="closeBriefDialog"
     >
       <el-row>
-        <el-col>
+        <el-col >
           <el-form
             ref="briefForm"
             :model="briefForm"
             label-width="120px"
             label-position="left"
           >
-            <el-divider
-              content-position="left"
-            ><i class="el-icon-picture" />抓拍图片</el-divider>
+            <el-divider content-position="left"
+              ><i class="el-icon-picture" />抓拍图片</el-divider
+            >
             <img
-              style="height: auto;max-height: 230px; object-fit: contain;"
+              style="height: auto; max-height: 230px; object-fit: contain"
               :src="briefForm.imgFilePath"
               width="100%"
-              @error="require('@/assets/404_images/imgNotFound.png')"
-              
-
+              @load="onLoadSuccess('onloneybig')"
+              @error="onImgError('onloneybig', $event)"
+            />
+            <el-divider content-position="left"
+              ><i class="el-icon-warning" />告警信息</el-divider
             >
-            <el-divider
-              content-position="left"
-            ><i class="el-icon-warning" />告警信息</el-divider>
             <el-form-item>
-              <span
-                slot="label"
-                class="formLabel"
-              ><span style="color: #f56c6c;font-size: 14px;"> * </span>告警类型:</span>
+              <span slot="label" class="formLabel"
+                ><span style="color: #f56c6c; font-size: 14px"> * </span
+                >告警类型:</span
+              >
               <span>{{ briefForm.alarmName }}</span>
             </el-form-item>
             <el-form-item>
-              <span
-                slot="label"
-                class="formLabel"
-              ><span style="color: #f56c6c;font-size: 14px;"> * </span>告警摄像头：</span>
+              <span slot="label" class="formLabel"
+                ><span style="color: #f56c6c; font-size: 14px"> * </span
+                >告警摄像头：</span
+              >
               <span>{{ briefForm.camName }}</span>
             </el-form-item>
             <el-form-item>
+              <span slot="label" class="formLabel"
+                ><span style="color: #f56c6c; font-size: 14px"> * </span
+                >告警时间：</span
+              >
               <span
-                slot="label"
-                class="formLabel"
-              ><span style="color: #f56c6c;font-size: 14px;"> * </span>告警时间：</span>
-              <span>{{ parseTime(briefForm.createdAt, '{y}-{m}-{d}') }}
-                {{ parseTime(briefForm.createdAt, '{h}:{i}:{s}') }}</span>
+                >{{ parseTime(briefForm.createdAt, "{y}-{m}-{d}") }}
+                {{ parseTime(briefForm.createdAt, "{h}:{i}:{s}") }}</span
+              >
             </el-form-item>
           </el-form>
         </el-col>
@@ -103,9 +104,9 @@
         <el-row :gutter="24">
           <el-col :span="18">
             <div v-if="detailForm.videoFilePath !== ''">
-              <el-divider
-                content-position="left"
-              ><i class="el-icon-video-camera-solid" />告警视频</el-divider>
+              <el-divider content-position="left"
+                ><i class="el-icon-video-camera-solid" />告警视频</el-divider
+              >
               <video-player
                 :playsinline="true"
                 class="vjs-custom-skin"
@@ -113,15 +114,15 @@
               />
             </div>
             <div v-else>
-              <el-divider
-                content-position="left"
-              ><i class="el-icon-picture" />抓拍图片</el-divider>
+              <el-divider content-position="left"
+                ><i class="el-icon-picture" />抓拍图片</el-divider
+              >
               <img
-              
                 width="100%"
                 :src="detailForm.imgFilePath"
-                @error="require('@/assets/404_images/imgNotFound.png')"
-              >
+                @load="onLoadSuccess('big')"
+                @error="onImgError('big', $event)"
+              />
             </div>
           </el-col>
           <el-col :span="6">
@@ -131,94 +132,90 @@
               label-width="120px"
               label-position="left"
             >
-              <el-divider
-                content-position="left"
-              ><i class="el-icon-picture" />抓拍图片</el-divider>
+              <el-divider content-position="left"
+                ><i class="el-icon-picture" />抓拍图片</el-divider
+              >
               <img
                 width="100%"
-                style="height: auto;max-height: 136px; object-fit: contain;"
+                style="height: auto; max-height: 136px; object-fit: contain"
                 :src="detailForm.imgFilePath"
-                @error="require('@/assets/404_images/imgNotFound.png')"
+                @load="onLoadSuccess('small')"
+                @error="onImgError('small', $event)"
+              />
+              <el-divider content-position="left"
+                ><i class="el-icon-info" />告警详情</el-divider
               >
-              <el-divider
-                content-position="left"
-              ><i class="el-icon-info" />告警详情</el-divider>
               <el-form-item>
-                <span
-                  slot="label"
-                  class="formLabel"
-                ><span style="color: #f56c6c;font-size: 14px;"> * </span>告警日期：</span>
+                <span slot="label" class="formLabel"
+                  ><span style="color: #f56c6c; font-size: 14px"> * </span
+                  >告警日期：</span
+                >
                 <span>{{
-                  parseTime(detailForm.createdAt, '{y}-{m}-{d}')
+                  parseTime(detailForm.createdAt, "{y}-{m}-{d}")
                 }}</span>
               </el-form-item>
               <el-form-item>
-                <span
-                  slot="label"
-                  class="formLabel"
-                ><span style="color: #f56c6c;font-size: 14px;"> * </span>告警时间：</span>
+                <span slot="label" class="formLabel"
+                  ><span style="color: #f56c6c; font-size: 14px"> * </span
+                  >告警时间：</span
+                >
                 <span>{{
-                  parseTime(detailForm.createdAt, '{h}:{i}:{s}')
+                  parseTime(detailForm.createdAt, "{h}:{i}:{s}")
                 }}</span>
               </el-form-item>
               <el-form-item>
-                <span
-                  slot="label"
-                  class="formLabel"
-                ><span style="color: #f56c6c;font-size: 14px;"> * </span>告警摄像头：</span>
+                <span slot="label" class="formLabel"
+                  ><span style="color: #f56c6c; font-size: 14px"> * </span
+                  >告警摄像头：</span
+                >
                 <span>{{ detailForm.camName }}</span>
               </el-form-item>
               <el-form-item>
-                <span
-                  slot="label"
-                  class="formLabel"
-                ><span style="color: #f56c6c;font-size: 14px;"> * </span>告警盒子：</span>
+                <span slot="label" class="formLabel"
+                  ><span style="color: #f56c6c; font-size: 14px"> * </span
+                  >告警盒子：</span
+                >
                 <span>{{ detailForm.boxName }}</span>
               </el-form-item>
               <el-form-item>
-                <span
-                  slot="label"
-                  class="formLabel"
-                ><span style="color: #f56c6c;font-size: 14px;"> * </span>告警类型：</span>
+                <span slot="label" class="formLabel"
+                  ><span style="color: #f56c6c; font-size: 14px"> * </span
+                  >告警类型：</span
+                >
                 <span>{{ detailForm.alarmName }}</span>
               </el-form-item>
             </el-form>
           </el-col>
         </el-row>
         <div slot="footer" class="dialog-footer">
-          <el-button
-            type="danger"
-            plain
-            @click="closeDetailsInnerVisible"
-          >关 闭</el-button>
+          <el-button type="danger" plain @click="closeDetailsInnerVisible"
+            >关 闭</el-button
+          >
         </div>
       </el-dialog>
       <div slot="footer" class="emergencyDetails">
-        <el-button
-          type="primary"
-          @click="alarmDetailsInnerVisible = true"
-        >查看详情</el-button>
+        <el-button type="primary" @click="lookDetail">查看详情</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import RightPanel from '@/components/RightPanel'
-import { AppMain, Navbar, Settings, Sidebar, TagsView } from './components'
-import ResizeMixin from './mixin/ResizeHandler'
-import { mapState } from 'vuex'
-import variables from '@/styles/variables.scss'
-import { unWsLogout } from '@/api/ws'
+import RightPanel from "@/components/RightPanel";
+import { AppMain, Navbar, Settings, Sidebar, TagsView } from "./components";
+import ResizeMixin from "./mixin/ResizeHandler";
+import { mapState } from "vuex";
+import variables from "@/styles/variables.scss";
+import { unWsLogout } from "@/api/ws";
 export default {
-  name: 'Layout',
+  name: "Layout",
   components: {
     AppMain,
     Navbar,
     RightPanel,
     Settings,
     Sidebar,
-    TagsView
+    TagsView,
   },
   mixins: [ResizeMixin],
   data() {
@@ -229,37 +226,37 @@ export default {
       group: undefined,
       alarmDialog: {},
       // 弹出层标题
-      alarmBriefTitle: '告警',
-      alarmDetailsTitle: '告警详情',
+      alarmBriefTitle: "告警",
+      alarmDetailsTitle: "告警详情",
       alarmDetailsInnerVisible: false,
       alarmBriefOuterVisible: false,
       playerOptions: {
         playbackRates: [0.7, 1.0, 1.5, 2.0], // 播放速度
         autoplay: true, // 如果true,浏览器准备好时开始回放。
         controls: true, // 控制条
-        preload: 'auto', // 视频预加载
+        preload: "auto", // 视频预加载
         muted: false, // 默认情况下将会消除任何音频。
         loop: false, // 导致视频一结束就重新开始。
-        language: 'zh-CN',
-        aspectRatio: '16:9', // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
+        language: "zh-CN",
+        aspectRatio: "16:9", // 将播放器置于流畅模式，并在计算播放器的动态大小时使用该值。值应该代表一个比例 - 用冒号分隔的两个数字（例如"16:9"或"4:3"）
         fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
         sources: [
           {
-            type: 'video/mp4',
+            type: "video/mp4",
             // src:
             //   'http://192.168.124.47:8880/static/alarm-video/359b033b5bb5c9ea5c0e3c23d139b6003bf3b374.mp4'
-            src: ''
-          }
+            src: "",
+          },
         ],
-        poster: '', // 你的封面地址
+        poster: "", // 你的封面地址
         // width: document.documentElement.clientWidth,
-        notSupportedMessage: '抱歉，此视频暂无法播放，请稍后再试', // 允许覆盖Video.js无法播放媒体源时显示的默认信息。
+        notSupportedMessage: "抱歉，此视频暂无法播放，请稍后再试", // 允许覆盖Video.js无法播放媒体源时显示的默认信息。
         controlBar: {
           timeDivider: true, // 当前时间和持续时间的分隔符
           durationDisplay: true, // 显示持续时间
           remainingTimeDisplay: false, // 是否显示剩余时间功能
-          fullscreenToggle: true // 是否显示全屏按钮
-        }
+          fullscreenToggle: true, // 是否显示全屏按钮
+        },
       },
       // 详情数据
       detailForm: {
@@ -277,7 +274,7 @@ export default {
         isConfirm: undefined,
         isPush: undefined,
         alarmDescribe: undefined,
-        alarmData: undefined
+        alarmData: undefined,
       },
 
       // 简报数据
@@ -296,62 +293,62 @@ export default {
         isConfirm: undefined,
         isPush: undefined,
         alarmDescribe: undefined,
-        alarmData: undefined
-      }
-    }
+        alarmData: undefined,
+      },
+    };
   },
   computed: {
     ...mapState({
-      sidebar: state => state.app.sidebar,
-      device: state => state.app.device,
-      showSettings: state => state.settings.showSettings,
-      needTagsView: state => state.settings.tagsView,
-      fixedHeader: state => state.settings.fixedHeader
+      sidebar: (state) => state.app.sidebar,
+      device: (state) => state.app.device,
+      showSettings: (state) => state.settings.showSettings,
+      needTagsView: (state) => state.settings.tagsView,
+      fixedHeader: (state) => state.settings.fixedHeader,
     }),
     classObj() {
       return {
         hideSidebar: !this.sidebar.opened,
         openSidebar: this.sidebar.opened,
         withoutAnimation: this.sidebar.withoutAnimation,
-        mobile: this.device === 'mobile'
-      }
+        mobile: this.device === "mobile",
+      };
     },
     variables() {
-      return variables
-    }
+      return variables;
+    },
   },
   created() {
-    this.id = this.guid()
-    this.group = 'alarmDialog'
-    this.initWebSocket()
+    this.id = this.guid();
+    this.group = "alarmDialog";
+    this.initWebSocket();
     // 权限控制
     // console.info("user", this.$store.state.user);
     // const roles = this.$store.state.user.roles
-    if (this.$store.state.user.roles.indexOf('normal') !== -1) {
+    if (this.$store.state.user.roles.indexOf("normal") !== -1) {
       // 修改对应角色名，控制权限
-      this.showCol = false
+      this.showCol = false;
     }
   },
   beforeDestroy() {
-    console.log('layout断开websocket连接')
-    this.websock.close() // 离开路由之后断开websocket连接
-    unWsLogout(this.id, this.group).then(response => {
+    console.log("layout断开websocket连接");
+    this.websock.close(); // 离开路由之后断开websocket连接
+    unWsLogout(this.id, this.group).then((response) => {
       // console.log(response.data)
-    })
+    });
   },
   methods: {
     handleClickOutside() {
-      this.$store.dispatch('app/closeSideBar', { withoutAnimation: false })
+      this.$store.dispatch("app/closeSideBar", { withoutAnimation: false });
     },
     closeBriefDialog() {
       // console.log('关闭告警了===========')
-      this.alarmBriefOuterVisible = false
-      this.resetBriefForm()
+      this.alarmBriefOuterVisible = false;
+      this.resetBriefForm();
     },
     closeDetailsInnerVisible() {
-      this.alarmDetailsInnerVisible = false
-      this.alarmBriefOuterVisible = false
-      this.resetDetailForm()
+      this.alarmDetailsInnerVisible = false;
+      this.alarmBriefOuterVisible = false;
+      this.resetDetailForm();
     },
     // 表单重置
     resetBriefForm() {
@@ -369,9 +366,9 @@ export default {
         isConfirm: undefined,
         isPush: undefined,
         alarmDescribe: undefined,
-        alarmData: undefined
-      }
-      this.resetForm('briefForm')
+        alarmData: undefined,
+      };
+      this.resetForm("briefForm");
     },
     // 表单重置
     resetDetailForm() {
@@ -389,53 +386,54 @@ export default {
         isConfirm: undefined,
         isPush: undefined,
         alarmDescribe: undefined,
-        alarmData: undefined
-      }
-      this.resetForm('detailForm')
+        alarmData: undefined,
+      };
+      this.resetForm("detailForm");
     },
     initWebSocket() {
       // 初始化weosocket
       // console.log('全局AlarmWebsocket初始化websocket')
       // console.log(this.$store.state.system.info.sys_app_ip)
       const wsuri =
-          'ws://' +
-          this.$store.state.system.info.sys_app_ip +
-          ':8880/ws/' +
-          this.id +
-          '/' +
-          this.group +
-          '?token=' +
-          this.$store.state.user.token
-      this.websock = new WebSocket(wsuri)
-      this.websock.onmessage = this.websocketonmessage
-      this.websock.onopen = this.websocketonopen
-      this.websock.onerror = this.websocketonerror
-      this.websock.onclose = this.websocketclose
+        "ws://" +
+        this.$store.state.system.info.sys_app_ip +
+        ":8880/ws/" +
+        this.id +
+        "/" +
+        this.group +
+        "?token=" +
+        this.$store.state.user.token;
+      this.websock = new WebSocket(wsuri);
+      this.websock.onmessage = this.websocketonmessage;
+      this.websock.onopen = this.websocketonopen;
+      this.websock.onerror = this.websocketonerror;
+      this.websock.onclose = this.websocketclose;
     },
     websocketonopen() {
       // 连接建立之后执行send方法发送数据
-      console.log('全局AlarmWebsocket连接打开')
+      console.log("全局AlarmWebsocket连接打开");
       //   const actions = { 'test': '12345' }
       //   this.websocketsend(JSON.stringify(actions))
     },
     websocketonerror() {
       // 连接建立失败重连
-      this.initWebSocket()
+      this.initWebSocket();
     },
     websocketonmessage(e) {
+      this.initImgLoad();
       // 数据接收
       // console.log(e)
-      console.log('---------------全局Socket消息通知---------------')
+      console.log("---------------全局Socket消息通知---------------");
       // console.log('1111全局Socket消息通知' + JSON.stringify(e.data))
 
       // //发现消息进入    开始处理前端触发逻辑
-      const jsonData = JSON.parse(e.data)
+      const jsonData = JSON.parse(e.data);
 
-      this.alarmBriefOuterVisible = true
-      this.briefForm = jsonData
-      this.detailForm = jsonData
-      this.alarmBriefTitle = jsonData.alarmDescribe
-      this.playerOptions['sources'][0]['src'] = this.detailForm.videoFilePath
+      this.alarmBriefOuterVisible = true;
+      this.briefForm = jsonData;
+      this.detailForm = jsonData;
+      this.alarmBriefTitle = jsonData.alarmDescribe;
+      this.playerOptions["sources"][0]["src"] = this.detailForm.videoFilePath;
     },
     websocketsend(Data) {
       // 数据发送
@@ -443,27 +441,73 @@ export default {
     },
     websocketclose(e) {
       // 关闭
-      unWsLogout(this.id, this.group).then(response => {
-        console.log(response.data)
-      })
-      console.log('断开连接', e)
+      unWsLogout(this.id, this.group).then((response) => {
+        console.log(response.data);
+      });
+      console.log("断开连接", e);
     },
     guid() {
-      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(
-        c
-      ) {
-        var r = (Math.random() * 16) | 0
-        var v = c === 'x' ? r : (r & 0x3) | 0x8
-        return v.toString(16)
-      })
-    }
-  }
-}
+      return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+        /[xy]/g,
+        function (c) {
+          var r = (Math.random() * 16) | 0;
+          var v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        }
+      );
+    },
+    lookDetail() {
+      this.alarmDetailsInnerVisible = true;
+      this.initImgLoad();
+    },
+    initImgLoad(all = true) {
+      if (this["small"]) {
+        this["small"] = 0;
+      }
+      if (this["big"]) {
+        this["big"] = 0;
+      }
+      if (all) {
+        if (this["onloneybig"]) {
+          this["onloneybig"] = 0;
+        }
+      }
+    },
+
+    onLoadSuccess(type) {
+      if (this[type]) {
+        this[type] = 0;
+      }
+    },
+    onImgError(type, e) {
+      if (!this[type]) {
+        // console.log("图片初始化加载失败", type, e);
+        this[type] = 1;
+      }
+      this[type]++;
+      if (this[type] < 3) {
+        // console.log("尝试重复加载失败", type, e);
+        e.path[0].src = e.path[0].src;
+      } else {
+        if (this[type] < 5) {
+          // console.log(
+          //   "尝试重复加载失败2次后,加载默认图片,允许重复加载2次,防止死循环",
+          //   type,
+          //   e
+          // );
+          e.path[0].src = require("@/assets/404_images/imgNotFound.png");
+        } else {
+          // e.path[0].src = 'https://cube.elemecdn.com/6/94/4d3ea53c084bad6931a56d5158a48jpeg.jpeg';
+        }
+      }
+    },
+  },
+};
 </script>
 
 <style lang="scss">
-@import '~@/styles/mixin.scss';
-@import '~@/styles/variables.scss';
+@import "~@/styles/mixin.scss";
+@import "~@/styles/variables.scss";
 
 .app-wrapper {
   @include clearfix;
@@ -507,7 +551,7 @@ export default {
 .formLabel {
   font-size: 15px;
   color: #333333;
-  font-family: 'Microsoft YaHei', '微软雅黑 Light', '微软雅黑', sans-serif;
+  font-family: "Microsoft YaHei", "微软雅黑 Light", "微软雅黑", sans-serif;
   font-weight: bold;
   line-height: 30px;
 }
